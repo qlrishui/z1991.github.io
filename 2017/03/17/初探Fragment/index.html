@@ -6,14 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://qlrishui.github.io">
-  <title>Archives | Hexo</title>
+  <title>Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
+  <meta name="description" content="初探FragmentFragment是什么
+Fragmeng简介： 
+
+自从Android 3.0中引入fragments 的概念,根据词海的翻译可以译为:碎片、片段。其上的是为了解决不同屏幕分辩率的动态和灵活UI设计。大屏幕如平板小屏幕如手机，平板电脑的设计使得其有更多的空间来放更多的UI组件，而多出来的空间存放UI使其会产生更多的交互，从而诞生了fragments 。fragments 的设计">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://qlrishui.github.io/archives/index.html">
+<meta property="og:url" content="https://qlrishui.github.io/2017/03/17/初探Fragment/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="初探FragmentFragment是什么
+Fragmeng简介： 
+
+自从Android 3.0中引入fragments 的概念,根据词海的翻译可以译为:碎片、片段。其上的是为了解决不同屏幕分辩率的动态和灵活UI设计。大屏幕如平板小屏幕如手机，平板电脑的设计使得其有更多的空间来放更多的UI组件，而多出来的空间存放UI使其会产生更多的交互，从而诞生了fragments 。fragments 的设计">
+<meta property="og:updated_time" content="2017-03-16T17:38:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="初探FragmentFragment是什么
+Fragmeng简介： 
+
+自从Android 3.0中引入fragments 的概念,根据词海的翻译可以译为:碎片、片段。其上的是为了解决不同屏幕分辩率的动态和灵活UI设计。大屏幕如平板小屏幕如手机，平板电脑的设计使得其有更多的空间来放更多的UI组件，而多出来的空间存放UI使其会产生更多的交互，从而诞生了fragments 。fragments 的设计">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -149,70 +162,158 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-初探Fragment" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="初探Fragment"><a href="#初探Fragment" class="headerlink" title="初探Fragment"></a>初探Fragment</h1><h2 id="Fragment是什么"><a href="#Fragment是什么" class="headerlink" title="Fragment是什么"></a>Fragment是什么</h2><ul>
+<li>Fragmeng简介： </li>
+</ul>
+<p>自从Android 3.0中引入fragments 的概念,根据词海的翻译可以译为:碎片、片段。其上的是为了解决不同屏幕分辩率的动态和灵活UI设计。大屏幕如平板小屏幕如手机，平板电脑的设计使得其有更多的空间来放更多的UI组件，而多出来的空间存放UI使其会产生更多的交互，从而诞生了fragments 。fragments 的设计不需要你来亲自管理view hierarchy 的复杂变化，通过将Activity 的布局分散到frament 中，可以在运行时修改activity 的外观，并且由activity 管理的back stack 中保存些变化。</p>
+<ul>
+<li>Fragmeng优点：</li>
+</ul>
+<p>Fragment可以使你能够将activity分离成多个可重用的组件，每个都有它自己的生命周期和UI。</p>
+<p>Fragment可以轻松得创建动态灵活的UI设计，可以适应于不同的屏幕尺寸。从手机到平板电脑。</p>
+<p>Fragment是一个独立的模块,紧紧地与activity绑定在一起。可以运行中动态地移除、加入、交换等。</p>
+<p>Fragment提供一个新的方式让你在不同的安卓设备上统一你的UI。</p>
+<p>Fragment 解决Activity间的切换不流畅，轻量切换。</p>
+<p>Fragment 替代TabActivity做导航，性能更好。</p>
+<p>Fragment 在4.2.版本中新增嵌套fragmeng使用方法，能够生成更好的界面效果。</p>
+<p>Fragment做局部内容更新更方便，原来为了到达这一点要把多个布局放到一个activity里面，现在可以用多Fragment来代替，只有在需要的时候才加载Fragment，提高性能</p>
+<ul>
+<li>Fragmeng使用</li>
+</ul>
+<ol>
+<li>两种添加方法</li>
+</ol>
+<p>在activity的layout文件中显式的神明一个fragment</p>
+<p>通过代码将fragment添加到一个已存在的ViewGroup，例如viewpager或者一个FrameLayout</p>
+<ol>
+<li>Fragmeng与Activity交互</li>
+</ol>
+<p>Fragmeng通过getActivity()获得所在Activity上下文,需要注意的是getAcitivy()有可能为空</p>
+<p>解决办法：</p>
+<p>更”安全”的方法：(对于Fragment已经onDetach这种情况，我们应该避免在这之后再去调用宿主Activity对象，比如取消这些异步任务，但我们的团队可能会有粗心大意的情况，所以下面给出的这个方案会保证安全)<br>在Fragment基类里设置一个Activity mActivity的全局变量，在onAttach(Activity activity)里赋值，使用mActivity代替getActivity()，保证Fragment即使在onDetach后，仍持有Activity的引用（有引起内存泄露的风险，但是异步任务没停止的情况下，本身就可能已内存泄漏，相比Crash，这种做法“安全”些），即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">protected Activity mActivity;</div><div class="line">@Override</div><div class="line">public void onAttach(Activity activity) &#123;</div><div class="line">    super.onAttach(activity);</div><div class="line">    this.mActivity = activity;</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line">*  如果你用了support 23的库，上面的方法会提示过时，有强迫症的小伙伴，可以用下面的方法代替</div><div class="line">*/</div><div class="line">@Override</div><div class="line">public void onAttach(Context context) &#123;</div><div class="line">    super.onAttach(context);</div><div class="line">    this.mActivity = (Activity)context;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Activity通过getFragmentManager()获得Fragmeng实例(findFragmentById,findFragmentByTag);</p>
+<p>通过FragmentTransaction可以增加、移除或者代替Fragments；</p>
+<p>通过fragmentTransaction.addToBackStack()可以把fragmeng保存到栈，响应后退按钮；</p>
+<p>Activity与fragment相互调用方法接口还可以通过Activity的<code>onAttachFragment</code>方法获得fragment的实例从而调用fragment的接口方法，而fragment可以通过<code>onAttach</code>获得父Acitivy的实例来调用相应的方法接口。如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">import android.app.Fragment;</div><div class="line">/**</div><div class="line"> * @author:zhangqian</div><div class="line"> * @time:2017/3/17</div><div class="line"> */</div><div class="line"></div><div class="line">public class TestActivity extends Activity &#123;</div><div class="line"></div><div class="line"></div><div class="line">    </div><div class="line">    private FragmentListener listener;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onAttachFragment(Fragment fragment) &#123;</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            if(fragment instanceof TestFragment)&#123;</div><div class="line">                listener = (TestFragment)fragment;</div><div class="line">                listener.todo();</div><div class="line">            &#125;</div><div class="line">        &#125;catch (Exception e)&#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        super.onAttachFragment(fragment);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * @author:zhangqian</div><div class="line"> * @time:2017/3/17</div><div class="line"> */</div><div class="line"></div><div class="line">public class TestFragment extends Fragment implements FragmentListener &#123;</div><div class="line"></div><div class="line">    private MainActivity mActivity;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onAttach(Context context) &#123;</div><div class="line">        super.onAttach(context);</div><div class="line">        mActivity = (MainActivity) context;</div><div class="line">        mActivity.getData();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void todo() &#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/z1991.github.io/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/z1991.github.io/2017/03/17/初探Fragment/" class="archive-article-date">
-  	<time datetime="2017-03-16T17:08:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-17</time>
-</a>
-        </div>
-    	 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=https://qlrishui.github.io/2017/03/17/初探Fragment/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/z1991.github.io/2017/03/08/hello-world/" class="archive-article-date">
-  	<time datetime="2017-03-07T16:44:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-08</time>
-</a>
-        </div>
-    	 
+<nav id="article-nav">
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/z1991.github.io/2017/03/08/hello-world/">Hello World</a>
-    </h1>
+  
+    <a href="/z1991.github.io/2017/03/08/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+    <div class="duoshuo"></div>
   
 
-        <div class="article-info info-on-right">
-          
-          
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -235,8 +336,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

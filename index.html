@@ -42,10 +42,10 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="null" class="js-avatar">
+			<img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1489696641172&amp;di=a80154cb9ba714c2a306ba6256b80b5d&amp;imgtype=jpg&amp;src=http%3A%2F%2Fimg1.imgtn.bdimg.com%2Fit%2Fu%3D3806208220%2C3435888470%26fm%3D214%26gp%3D0.jpg" class="js-avatar">
 		</a>
 		<hgroup>
-		  <h1 class="header-author"><a href="/">John Doe</a></h1>
+		  <h1 class="header-author"><a href="/">张倩</a></h1>
 		</hgroup>
 		
 
@@ -100,10 +100,10 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src="null" class="js-avatar">
+				<img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1489696641172&amp;di=a80154cb9ba714c2a306ba6256b80b5d&amp;imgtype=jpg&amp;src=http%3A%2F%2Fimg1.imgtn.bdimg.com%2Fit%2Fu%3D3806208220%2C3435888470%26fm%3D214%26gp%3D0.jpg" class="js-avatar">
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">John Doe</h1>
+			  <h1 class="header-author js-header-author">张倩</h1>
 			</hgroup>
 			
 			
@@ -150,6 +150,77 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-初探Fragment" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="初探Fragment"><a href="#初探Fragment" class="headerlink" title="初探Fragment"></a>初探Fragment</h1><h2 id="Fragment是什么"><a href="#Fragment是什么" class="headerlink" title="Fragment是什么"></a>Fragment是什么</h2><ul>
+<li>Fragmeng简介： </li>
+</ul>
+<p>自从Android 3.0中引入fragments 的概念,根据词海的翻译可以译为:碎片、片段。其上的是为了解决不同屏幕分辩率的动态和灵活UI设计。大屏幕如平板小屏幕如手机，平板电脑的设计使得其有更多的空间来放更多的UI组件，而多出来的空间存放UI使其会产生更多的交互，从而诞生了fragments 。fragments 的设计不需要你来亲自管理view hierarchy 的复杂变化，通过将Activity 的布局分散到frament 中，可以在运行时修改activity 的外观，并且由activity 管理的back stack 中保存些变化。</p>
+<ul>
+<li>Fragmeng优点：</li>
+</ul>
+<p>Fragment可以使你能够将activity分离成多个可重用的组件，每个都有它自己的生命周期和UI。</p>
+<p>Fragment可以轻松得创建动态灵活的UI设计，可以适应于不同的屏幕尺寸。从手机到平板电脑。</p>
+<p>Fragment是一个独立的模块,紧紧地与activity绑定在一起。可以运行中动态地移除、加入、交换等。</p>
+<p>Fragment提供一个新的方式让你在不同的安卓设备上统一你的UI。</p>
+<p>Fragment 解决Activity间的切换不流畅，轻量切换。</p>
+<p>Fragment 替代TabActivity做导航，性能更好。</p>
+<p>Fragment 在4.2.版本中新增嵌套fragmeng使用方法，能够生成更好的界面效果。</p>
+<p>Fragment做局部内容更新更方便，原来为了到达这一点要把多个布局放到一个activity里面，现在可以用多Fragment来代替，只有在需要的时候才加载Fragment，提高性能</p>
+<ul>
+<li>Fragmeng使用</li>
+</ul>
+<ol>
+<li>两种添加方法</li>
+</ol>
+<p>在activity的layout文件中显式的神明一个fragment</p>
+<p>通过代码将fragment添加到一个已存在的ViewGroup，例如viewpager或者一个FrameLayout</p>
+<ol>
+<li>Fragmeng与Activity交互</li>
+</ol>
+<p>Fragmeng通过getActivity()获得所在Activity上下文,需要注意的是getAcitivy()有可能为空</p>
+<p>解决办法：</p>
+<p>更”安全”的方法：(对于Fragment已经onDetach这种情况，我们应该避免在这之后再去调用宿主Activity对象，比如取消这些异步任务，但我们的团队可能会有粗心大意的情况，所以下面给出的这个方案会保证安全)<br>在Fragment基类里设置一个Activity mActivity的全局变量，在onAttach(Activity activity)里赋值，使用mActivity代替getActivity()，保证Fragment即使在onDetach后，仍持有Activity的引用（有引起内存泄露的风险，但是异步任务没停止的情况下，本身就可能已内存泄漏，相比Crash，这种做法“安全”些），即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">protected Activity mActivity;</div><div class="line">@Override</div><div class="line">public void onAttach(Activity activity) &#123;</div><div class="line">    super.onAttach(activity);</div><div class="line">    this.mActivity = activity;</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line">*  如果你用了support 23的库，上面的方法会提示过时，有强迫症的小伙伴，可以用下面的方法代替</div><div class="line">*/</div><div class="line">@Override</div><div class="line">public void onAttach(Context context) &#123;</div><div class="line">    super.onAttach(context);</div><div class="line">    this.mActivity = (Activity)context;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Activity通过getFragmentManager()获得Fragmeng实例(findFragmentById,findFragmentByTag);</p>
+<p>通过FragmentTransaction可以增加、移除或者代替Fragments；</p>
+<p>通过fragmentTransaction.addToBackStack()可以把fragmeng保存到栈，响应后退按钮；</p>
+<p>Activity与fragment相互调用方法接口还可以通过Activity的<code>onAttachFragment</code>方法获得fragment的实例从而调用fragment的接口方法，而fragment可以通过<code>onAttach</code>获得父Acitivy的实例来调用相应的方法接口。如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">import android.app.Fragment;</div><div class="line">/**</div><div class="line"> * @author:zhangqian</div><div class="line"> * @time:2017/3/17</div><div class="line"> */</div><div class="line"></div><div class="line">public class TestActivity extends Activity &#123;</div><div class="line"></div><div class="line"></div><div class="line">    </div><div class="line">    private FragmentListener listener;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onAttachFragment(Fragment fragment) &#123;</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            if(fragment instanceof TestFragment)&#123;</div><div class="line">                listener = (TestFragment)fragment;</div><div class="line">                listener.todo();</div><div class="line">            &#125;</div><div class="line">        &#125;catch (Exception e)&#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        super.onAttachFragment(fragment);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * @author:zhangqian</div><div class="line"> * @time:2017/3/17</div><div class="line"> */</div><div class="line"></div><div class="line">public class TestFragment extends Fragment implements FragmentListener &#123;</div><div class="line"></div><div class="line">    private MainActivity mActivity;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void onAttach(Context context) &#123;</div><div class="line">        super.onAttach(context);</div><div class="line">        mActivity = (MainActivity) context;</div><div class="line">        mActivity.getData();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void todo() &#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/z1991.github.io/2017/03/17/初探Fragment/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
   
     <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -220,7 +291,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 John Doe
+    		&copy; 2017 张倩
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
