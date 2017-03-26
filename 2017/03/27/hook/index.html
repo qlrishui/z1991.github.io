@@ -6,14 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://qlrishui.github.io">
-  <title>Archives | Hexo</title>
+  <title>Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
+  <meta name="description" content="hook Instrumentation 实现对Activity生命周期的监听如何hook主线程首先要先找对hook的点，在Application中有一个隐藏的mLoadedApk，它在Application之初便保存了程序的所有信息mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;我们可以看到这个LoadedApk里包含了Activit">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://qlrishui.github.io/archives/index.html">
+<meta property="og:url" content="https://qlrishui.github.io/2017/03/27/hook/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hook Instrumentation 实现对Activity生命周期的监听如何hook主线程首先要先找对hook的点，在Application中有一个隐藏的mLoadedApk，它在Application之初便保存了程序的所有信息mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;我们可以看到这个LoadedApk里包含了Activit">
+<meta property="og:updated_time" content="2017-03-26T17:08:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="hook Instrumentation 实现对Activity生命周期的监听如何hook主线程首先要先找对hook的点，在Application中有一个隐藏的mLoadedApk，它在Application之初便保存了程序的所有信息mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;我们可以看到这个LoadedApk里包含了Activit">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -149,91 +153,125 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-hook" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="hook-Instrumentation-实现对Activity生命周期的监听"><a href="#hook-Instrumentation-实现对Activity生命周期的监听" class="headerlink" title="hook Instrumentation 实现对Activity生命周期的监听"></a>hook Instrumentation 实现对Activity生命周期的监听</h2><h3 id="如何hook主线程"><a href="#如何hook主线程" class="headerlink" title="如何hook主线程"></a>如何hook主线程</h3><p>首先要先找对hook的点，在Application中有一个隐藏的mLoadedApk，它在Application之初便保存了程序的所有信息<code>mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;</code>我们可以看到这个LoadedApk里包含了ActivityThread，这个ActivityThread里又有一个sCurrentActivityThread，sCurrentActivityThread指的是他自己本身，所以这个sCurrentActivityThread就是我们想要hook住的主线程对象，在这个主线程对象里我们又可以hook他的Instrumentation对象以实现对activity对象的各个生命周期的回调的监听。</p>
+<p>如代码所示，我们需要在Application启动时去替换主线程的Instrumentation:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line">package com.example.zhanqian.myapplication;</div><div class="line"></div><div class="line">import android.app.Activity;</div><div class="line">import android.app.Application;</div><div class="line">import android.app.Instrumentation;</div><div class="line">import android.util.Log;</div><div class="line"></div><div class="line">import java.lang.reflect.Field;</div><div class="line">import java.lang.reflect.InvocationTargetException;</div><div class="line">import java.lang.reflect.Method;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Created by zhangqian on 2016/5/27.</div><div class="line"> */</div><div class="line"></div><div class="line">public class MyApplication extends Application &#123;</div><div class="line">    @Override</div><div class="line">    public void onCreate() &#123;</div><div class="line">        super.onCreate();</div><div class="line">        try &#123;</div><div class="line">            hookActivity(this);</div><div class="line">        &#125; catch (NoSuchFieldException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (IllegalAccessException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (NoSuchMethodException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; catch (InvocationTargetException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void hookActivity( Application application) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException &#123;</div><div class="line">        Class&lt;?&gt; clz = application.getClass();</div><div class="line">        Field field = clz.getField(&quot;mLoadedApk&quot;);</div><div class="line">        field.setAccessible(true);</div><div class="line">        Class &lt;?&gt; clzz = field.getType();</div><div class="line">        Field threadF = clzz.getDeclaredField(&quot;mActivityThread&quot;);</div><div class="line">        threadF.setAccessible(true);</div><div class="line">        Class&lt;?&gt; thread = threadF.getType();</div><div class="line">        Method currentActivityThread= thread.getDeclaredMethod(&quot;currentActivityThread&quot;);</div><div class="line">        currentActivityThread.setAccessible(true);</div><div class="line">        /**获取主线程对象**/</div><div class="line">        Object activityThreadObject=currentActivityThread.invoke(null);</div><div class="line">        Field mInstrumentationField = thread.getDeclaredField(&quot;mInstrumentation&quot;);</div><div class="line">        mInstrumentationField.setAccessible(true);</div><div class="line">        Instrumentation mInsertInstrumentation = new InsertInstrumentation();</div><div class="line">        mInstrumentationField.set(activityThreadObject,mInsertInstrumentation);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private static class InsertInstrumentation extends android.app.Instrumentation&#123;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public void callActivityOnResume(Activity activity) &#123;</div><div class="line">            super.callActivityOnResume(activity);</div><div class="line"></div><div class="line">            Log.i(&quot;zhangqian&quot;,&quot;---------------hook Activity OnResume -----------------&quot;);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public void callActivityOnPause(Activity activity) &#123;</div><div class="line">            super.callActivityOnPause(activity);</div><div class="line"></div><div class="line">            Log.i(&quot;zhangqian&quot;,&quot;---------------hook Activity OnPause -----------------&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/z1991.github.io/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/z1991.github.io/2017/03/27/hook/" class="archive-article-date">
-  	<time datetime="2017-03-26T17:05:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-27</time>
-</a>
-        </div>
-    	 
-        <div class="article-info info-on-right">
-          
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=https://qlrishui.github.io/2017/03/27/hook/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/z1991.github.io/2017/03/17/初探Fragment/" class="archive-article-date">
-  	<time datetime="2017-03-16T18:00:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-17</time>
-</a>
-        </div>
-    	 
-        <div class="article-info info-on-right">
-          
-          
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/z1991.github.io/2017/03/08/hello-world/" class="archive-article-date">
-  	<time datetime="2017-03-07T16:44:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-08</time>
-</a>
-        </div>
-    	 
+<nav id="article-nav">
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/z1991.github.io/2017/03/08/hello-world/">Hello World</a>
-    </h1>
+  
+    <a href="/z1991.github.io/2017/03/17/初探Fragment/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title"></div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+  
+    <div class="duoshuo"></div>
   
 
-        <div class="article-info info-on-right">
-          
-          
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -256,8 +294,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
